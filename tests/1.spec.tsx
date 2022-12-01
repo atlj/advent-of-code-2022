@@ -20,6 +20,13 @@ function parseElves(calories: string): number[] {
   });
 }
 
+function parseTopThree(calories: string): number {
+  const elfCalories = parseElves(calories)
+
+  const topThree = elfCalories.sort((a, b) => b - a).slice(0, 3)
+  return topThree.reduce((acc, current) => acc + current, 0)
+}
+
 describe("day 1", () => {
 
   it("should calculate elf count correctly", () => {
@@ -37,14 +44,22 @@ describe("day 1", () => {
   });
 
   it("should calculate the final result", () => {
-    const result = parseElves(realInput).sort((a, b) => b - a)[0]
+    const result = parseElves(finalInput).sort((a, b) => b - a)[0]
 
     expect(result).toStrictEqual(71023)
   })
 
+  it("should calculate the top 3 correctly", () => {
+    expect(parseTopThree(testInput)).toStrictEqual(130)
+  })
+
+  it("should calculate the final top 3 correctly", () => {
+    expect(parseTopThree(finalInput)).toStrictEqual(206289)
+  })
+
 })
 
-const realInput = `17034
+const finalInput = `17034
 
 13495
 7368
