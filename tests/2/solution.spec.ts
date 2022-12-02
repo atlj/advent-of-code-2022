@@ -1,12 +1,12 @@
-import { calculateOutcome, myPick, opponentPick } from "./points.spec"
+import { calculateOutcome, guessMyPick, outcome, opponentPick } from "./points.spec"
 
 
 // A row looks like this A Y
-function parseRow(row: string): { opponentPick: opponentPick, myPick: myPick } {
-  const [opponentPick, myPick] = row.split(" ")
+function parseRow(row: string): { opponentPick: opponentPick, outcome: outcome } {
+  const [opponentPick, outcome] = row.split(" ")
 
   return {
-    opponentPick: opponentPick as opponentPick, myPick: myPick as myPick
+    opponentPick: opponentPick as opponentPick, outcome: outcome as outcome
   }
 }
 
@@ -14,7 +14,9 @@ function calculateFinal(columns: string) {
   let points = 0
 
   columns.split("\n").forEach(row => {
-    const { opponentPick, myPick } = parseRow(row)
+    const { opponentPick, outcome } = parseRow(row)
+
+    const myPick = guessMyPick(opponentPick, outcome)
 
     points += calculateOutcome(opponentPick, myPick)
   })
@@ -29,15 +31,15 @@ C Z`
 describe("2nd day solution", () => {
 
   it("should parse the row correctly", () => {
-    expect(parseRow("A X")).toStrictEqual({ opponentPick: opponentPick.rock, myPick: myPick.rock })
+    expect(parseRow("A X")).toStrictEqual({ opponentPick: opponentPick.rock, outcome: outcome.lose })
   })
 
   it("should calculate the test tables outcome correctly", () => {
-    expect(calculateFinal(testInput)).toStrictEqual(15)
+    expect(calculateFinal(testInput)).toStrictEqual(12)
   })
 
   it("should calculate the final tables outcome correctly", () => {
-    expect(calculateFinal(finalInput)).toStrictEqual(13009)
+    expect(calculateFinal(finalInput)).toStrictEqual(10398)
   })
 })
 

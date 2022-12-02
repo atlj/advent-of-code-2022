@@ -18,6 +18,12 @@ export enum myPick {
   scissors = "Z"
 }
 
+export enum outcome {
+  lose = "X",
+  draw = "Y",
+  win = "Z"
+}
+
 const opponentPickToMyPick: Record<opponentPick, myPick> = {
   "A": myPick.rock,
   "B": myPick.paper,
@@ -34,6 +40,25 @@ const beatsTable: Record<myPick, myPick> = {
   [myPick.scissors]: myPick.paper,
   [myPick.paper]: myPick.rock,
   [myPick.rock]: myPick.scissors
+}
+
+const losesTable: Record<myPick, myPick> = {
+  [myPick.rock]: myPick.paper,
+  [myPick.paper]: myPick.scissors,
+  [myPick.scissors]: myPick.rock
+}
+
+
+export function guessMyPick(opponent: opponentPick, out: outcome): myPick {
+  const op = opponentPickToMyPick[opponent]
+  switch (out) {
+    case outcome.draw:
+      return op
+    case outcome.lose:
+      return beatsTable[op]
+    default:
+      return losesTable[op]
+  }
 }
 
 function convertOpponentPickToMyPick(opponentPick: opponentPick) {
@@ -61,6 +86,7 @@ export function calculateOutcome(opponentPick: opponentPick, myPick: myPick): nu
   return shapePoint + calculateWinPoint(opponentPick, myPick)
 }
 
+
 describe("2nd day solution", () => {
   it("should convert opponent pick to my pick", () => {
     expect(convertOpponentPickToMyPick(opponentPick.paper)).toStrictEqual(myPick.paper)
@@ -75,6 +101,12 @@ describe("2nd day solution", () => {
   it("should calculate outcome correctly", () => {
     expect(calculateOutcome(opponentPick.paper, myPick.paper)).toStrictEqual(5)
     expect(calculateOutcome(opponentPick.paper, myPick.rock)).toStrictEqual(1)
+  })
+
+  it("should guess my pick correctly", () => {
+    expect(guessMyPick(opponentPick.rock, outcome.draw)).toStrictEqual(myPick.rock)
+    expect(guessMyPick(opponentPick.paper, outcome.lose)).toStrictEqual(myPick.rock)
+    expect(guessMyPick(opponentPick.scissors, outcome.win)).toStrictEqual(myPick.rock)
   })
 })
 
