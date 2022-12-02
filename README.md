@@ -2,6 +2,7 @@
 
 All the solutions are located inside [the tests folder](./tests)
 > Solutions are not perfect, I just try to code them rapidly
+> On a second thought, solutions are really bad xD
 
 ## My workflow
 
