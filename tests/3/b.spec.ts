@@ -1,79 +1,83 @@
-// first half of the line is first compartment, second is the second
-//
+// categorize elves by the common badge item which is a regular item
+// every group of 3 has a common item.
+// Sum of priorities of badges
 //
 
-function getHalfOfCompartment(compartment: string) {
-  const count = compartment.length
-  const items = compartment.split("")
-  const firstHalf = items.splice(0, count / 2)
-  return [firstHalf.join(""), items.join("")]
+import { calculateItemPriority } from "./a.spec"
+
+// Get every three line
+function getElfGroups(compartments: string) {
+  const lines = compartments.split("\n")
+
+  const result: string[][] = []
+  let currentGroup: string[] = []
+
+  for (let index = 0; index < lines.length; index++) {
+    currentGroup.push(lines[index])
+    if ((index + 1) % 3 === 0) {
+      result.push(currentGroup)
+      currentGroup = []
+    }
+  }
+
+  return result
 }
 
-function getTheSameItem(compartment: string) {
-  const [firstHalf, secondHalf] = getHalfOfCompartment(compartment)
+// This function takes an array that includes three strings and returns the common item on each of them.
+function findBadge(compartments: string[]) {
+  let badge: null | string = null
 
-  let sameItem: null | string = null
+  // lets hardcode it
+  // this is not appropriate normally because it doesnt scale well
+  const first = compartments[0]
+  const second = compartments[1]
+  const third = compartments[2]
 
-  firstHalf.split("").forEach((item) => {
-    if (secondHalf.includes(item)) {
-      sameItem = item
+  first.split("").forEach((item) => {
+    if (second.includes(item)) {
+      if (third.includes(item)) {
+        badge = item
+      }
     }
   })
 
-  return sameItem
+  return badge
 }
 
-// lowercase a-z has priority 1 to 26
-// uppercase A-Z has 27 to 52
-export function calculateItemPriority(item: string) {
-  // A starts from 65, Z ends at 90
-  // a starts from 97, z ends at 122
-
-  const code = item.charCodeAt(0)
-
-  // uppercase
-  if (code <= 90) {
-    return code - 38 // 38 = 65 - 27
-  }
-  // lowercase
-  else {
-    return code - 96 // 96 = 97 - 1
-  }
+function solution(compartments: string) {
+  const groups = getElfGroups(compartments)
+  return groups.map(group => {
+    const badge = findBadge(group)
+    return calculateItemPriority(badge as string)
+  }).reduce((a, b) => a + b, 0)
 }
 
-function calculateLogic(compartments: string) {
-  const lines = compartments.split("\n")
-  return lines.map((compartment => {
-    const sameItem = getTheSameItem(compartment)
-    return calculateItemPriority(sameItem as string)
-  })).reduce((a, b) => a + b, 0)
-}
+describe("2nd half of day 3", () => {
+  it("should categorize lines into threes", () => {
+    const testInput = `ab
+ba
+cf
+da
+dv
+jd`
 
-const testInput = `vJrwpWtwJgWrhcsFMMfFFhFp
-jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
-PmmdzqPrVvPwwTWBwg
-wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
-ttgJtRGJQctTZtZT
-CrZsJsPPZsGzwwsLwLmpwMDw`
+    expect(getElfGroups(testInput)).toStrictEqual([["ab", "ba", "cf"], ["da", "dv", "jd"]])
+  })
 
-describe("3rd day first part", () => {
-  it("should get the half of a compartment", () => {
-    expect(getHalfOfCompartment("aabb")).toStrictEqual(["aa", "bb"])
+  it("should find the badge correctly", () => {
+    const testInput = ["abc", "fad", "jha"]
+    expect(findBadge(testInput)).toStrictEqual("a")
   })
-  it("should get the same item correctly", () => {
-    expect(getTheSameItem("aaba")).toStrictEqual("a")
-    expect(getTheSameItem("123456789lkjhgfds1")).toStrictEqual("1")
+
+  it("should find the solution correctly for test input", () => {
+    const testInput = "abc\nfad\njha"
+    const testInput2 = "abc\nfad\njha\nBac\nfBt\njkB"
+    expect(solution(testInput)).toStrictEqual(1)
+    expect(solution(testInput2)).toStrictEqual(29)
   })
-  it("should calcualte priority correctly", () => {
-    expect(calculateItemPriority("a")).toStrictEqual(1)
-    expect(calculateItemPriority("A")).toStrictEqual(27)
-    expect(calculateItemPriority("C")).toStrictEqual(29)
-  })
-  it("should solve the test correctly", () => {
-    expect(calculateLogic(testInput)).toStrictEqual(157)
-  })
-  it("should solve the final problem correctly", () => {
-    expect(calculateLogic(finalInput)).toStrictEqual(8515)
+
+  it("should calculate the solution for final input correctly", () => {
+    expect(solution(finalInput)).toStrictEqual(2434)
   })
 })
 
