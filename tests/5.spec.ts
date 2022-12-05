@@ -55,23 +55,47 @@ function moveMutable(from: string[], to: string[]) {
   to.unshift(crate)
 }
 
-function moveTimes(times: number, from: string[], to: string[]) {
+function moveTimesFirst(times: number, from: string[], to: string[]) {
   const fromCopy = [...from]
   const toCopy = [...to]
+
   for (let i = 0; i < times; i++) {
     moveMutable(fromCopy, toCopy)
   }
+
   return [fromCopy, toCopy]
 }
 
-function solve(input: string) {
+function moveTimesSecond(times: number, from: string[], to: string[]) {
+  const fromCopy = [...from]
+  const toCopy = [...to]
+  const buffer: string[] = []
+
+  for (let i = 0; i < times; i++) {
+    moveMutable(fromCopy, buffer)
+  }
+
+  buffer.forEach(crate => toCopy.unshift(crate))
+  return [fromCopy, toCopy]
+}
+
+function solveFirst(input: string) {
   const { stacks, instructions } = parseStacks(input)
 
-  console.log(stacks)
-  console.log(instructions)
+  instructions.forEach(instruction => {
+    const [newFrom, newTo] = moveTimesFirst(instruction.times, stacks[instruction.fromIndex], stacks[instruction.toIndex])
+    stacks[instruction.fromIndex] = newFrom
+    stacks[instruction.toIndex] = newTo
+  })
+
+  return stacks.reduce((acc, curr) => acc + curr[0], "")
+}
+
+function solveSecond(input: string) {
+  const { stacks, instructions } = parseStacks(input)
 
   instructions.forEach(instruction => {
-    const [newFrom, newTo] = moveTimes(instruction.times, stacks[instruction.fromIndex], stacks[instruction.toIndex])
+    const [newFrom, newTo] = moveTimesSecond(instruction.times, stacks[instruction.fromIndex], stacks[instruction.toIndex])
     stacks[instruction.fromIndex] = newFrom
     stacks[instruction.toIndex] = newTo
   })
@@ -80,19 +104,19 @@ function solve(input: string) {
 }
 
 describe("5th day part 2", () => {
-  // it("should move times", () => {
-  //   const from = ["A", "B", "C"]
-  //   const to = ["D"]
-  //   moveTimes(2, from, to)
-  //   expect(moveTimes(2, from, to)).toStrictEqual([["C"], ["B", "A", "D"]])
-  // })
+  it("should move times", () => {
+    const from = ["A", "B", "C"]
+    const to = ["D"]
+    expect(moveTimesFirst(2, from, to)).toStrictEqual([["C"], ["B", "A", "D"]])
+  })
 
-  // it("should parse the stacks", () => {
-  //   expect(parseStacks(testInput)).toStrictEqual({})
-  // })
+  it("should solve the first half correctly", () => {
+    expect(solveFirst(finalInput)).toStrictEqual("TLNGFGMFN")
+  })
 
-  it("should solve test input correctly", () => {
-    expect(solve(finalInput)).toStrictEqual([])
+  it("should solve the second half correctly", () => {
+    expect(solveSecond(finalInput)).toStrictEqual("FGLQJCMBD")
+
   })
 })
 
