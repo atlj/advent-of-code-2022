@@ -48,17 +48,67 @@ function solve1st(input: string) {
     const currentRow = input.split("\n")[rowIndex]
     const currentColumn = colSplit(input, colIndex).join("")
 
-    let markedVisible = false
 
     if (isVisible(currentRow, colIndex) || isVisible(currentColumn, rowIndex)) {
       visibleTrees.push(tree)
-      markedVisible = true
     }
-    // console.log(tree, colIndex, rowIndex, currentColumn, currentRow, markedVisible)
   })
 
-
   return visibleTrees.length
+}
+
+function getScenicScore(line: string, index: number) {
+  const trees = line.split('')
+  let scoreLeft = 0
+  let scoreRight = 0
+  let seenTreeLeft = false
+  let seenTreeRight = false
+
+  const currentHeight = parseInt(trees[index], 10)
+
+  for (let leftI = index - 1; leftI >= 0; leftI--) {
+    if (!seenTreeLeft) {
+      scoreLeft++
+      if (parseInt(trees[leftI], 10) >= currentHeight) {
+        seenTreeLeft = true
+      }
+    }
+  }
+
+  for (let rightI = index + 1; rightI < trees.length; rightI++) {
+    if (!seenTreeRight) {
+      scoreRight++
+      if (parseInt(trees[rightI], 10) >= currentHeight) {
+        seenTreeRight = true
+      }
+    }
+  }
+
+  return scoreLeft * scoreRight
+}
+
+function solve2nd(input: string) {
+
+  const trees = input.split("\n").join("").split("")
+  const lineLenght = input.split("\n")[0].length
+
+  const scenicScores: number[] = []
+
+  trees.forEach((_, index) => {
+    const colIndex = index % lineLenght
+    const rowIndex = Math.trunc(index / lineLenght)
+
+    const currentRow = input.split("\n")[rowIndex]
+    const currentColumn = colSplit(input, colIndex).join("")
+
+
+    const scenicRow = getScenicScore(currentRow, colIndex)
+    const scenicCol = getScenicScore(currentColumn, rowIndex)
+
+    scenicScores.push(scenicCol * scenicRow)
+  })
+
+  return Math.max(...scenicScores)
 }
 
 
@@ -67,19 +117,20 @@ describe("8th day", () => {
     expect(colSplit(testInput, 0)).toStrictEqual(["3", "2", "6", "3", "3"])
   })
 
-  it.skip("should check line correctly", () => {
-    expect(isVisible("42130", 0)).toBeTruthy()
-    expect(isVisible("42130", 1)).toBeFalsy()
-    expect(isVisible("32633", 4)).toBeTruthy()
-    expect(isVisible("05535", 2)).toBeTruthy()
-  })
-
   it("should calculate the test result", () => {
     expect(solve1st(testInput)).toStrictEqual(21)
   })
 
   it("should calculate the final result", () => {
-    expect(solve1st(finalInput)).toStrictEqual(21)
+    expect(solve1st(finalInput)).toStrictEqual(1825)
+  })
+
+  it("should calculate test 2", () => {
+    expect(solve2nd(testInput)).toStrictEqual(8)
+  })
+
+  it("should calculate final 2", () => {
+    expect(solve2nd(finalInput)).toStrictEqual(235200)
   })
 
 })
