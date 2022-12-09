@@ -44,6 +44,10 @@ function moveHead(instruction: string, headPos: Pos): Pos {
       return { x: headPos.x, y: headPos.y + 1 }
     case "D":
       return { x: headPos.x, y: headPos.y - 1 }
+
+    // just to satisfy ts
+    default:
+      return { x: 0, y: 0 }
   }
 }
 
@@ -88,6 +92,53 @@ function solve1st(input: string) {
   return visitedPositions.length
 }
 
+function solve2nd(input: string) {
+
+  const visitedPositions: Array<Pos> = []
+
+  const knots: Array<Pos> = [
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+  ]
+
+  visitedPositions.push(knots[1])
+
+  input.split("\n").forEach(line => {
+    const instruction = line.split(" ")[0]
+    const times = parseInt(line.split(" ")[1], 10)
+
+    for (let currentRep = 1; currentRep <= times; currentRep++) {
+      for (let knotIndex = 0; knotIndex < knots.length; knotIndex++) {
+        const knot = knots[knotIndex]
+
+        if (knotIndex === 0) {
+          knots[0] = moveHead(instruction, knot)
+          continue
+        }
+
+        const head = knots[knotIndex - 1]
+
+        if (shouldTailMove(head, knot)) {
+          const tail = calculateTailPos(head, knot)
+          knots[knotIndex] = tail
+          if (knotIndex === 9 && !checkIfArrayAlreadyHasPos(visitedPositions, tail)) {
+            visitedPositions.push(tail)
+          }
+        }
+      }
+    }
+  })
+
+  return visitedPositions.length
+}
 // Parse the input
 
 // Mark each coordinates that tail visited, remove duplicates.
@@ -120,6 +171,10 @@ describe("9th day", () => {
   it("should calculate 1st final correctly", () => {
     expect(solve1st(finalInput)).toStrictEqual(5981)
   })
+
+  it("should calculate 2nd test", () => {
+    expect(solve2nd(finalInput)).toStrictEqual(2352)
+  })
 })
 
 const testInput = `R 4
@@ -130,6 +185,15 @@ R 4
 D 1
 L 5
 R 2`
+
+const testInput2 = `R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20`
 
 const finalInput = `L 2
 D 2
