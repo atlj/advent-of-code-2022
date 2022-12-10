@@ -31,6 +31,57 @@ function solve1(input: string) {
   return sum
 }
 
+function drawOutput(X: number, cycle: number) {
+  const rowIndex = (cycle - 1) % 40
+  let result = ""
+
+  if (Math.abs(rowIndex - X) <= 1) {
+    result = result + "#"
+  } else {
+    result = result + "."
+  }
+
+  if ((rowIndex + 1) % 40 === 0) {
+    result = result + "\n"
+  }
+  return result
+}
+
+
+function solve2(input: string) {
+  let cycle = 1
+  let X = 1
+  let output = ""
+
+  input.split("\n").forEach(insturction => {
+    const [op, val] = insturction.split(" ")
+    const valInt = op === "addx" ? parseInt(val, 10) : 0
+
+    if (op === "addx") {
+      for (let cnt = 0; cnt < 2; cnt++) {
+        if (cnt === 0) {
+          cycle++
+        } else {
+          X += valInt
+          cycle++
+        }
+        output = output + drawOutput(X, cycle)
+      }
+
+    } else {
+      cycle += 1
+      output = output + drawOutput(X, cycle)
+    }
+  })
+
+  return output
+}
+
+// Screen is 40 wide and 6 high
+// Screen starts idx 0, ends 39
+// register X is the middle point of the sprite
+// sprite is 3 pixels width
+
 describe("10th day", () => {
   it("should solve test1", () => {
     expect(solve1(testInput)).toStrictEqual(13140)
@@ -38,6 +89,10 @@ describe("10th day", () => {
 
   it("should solve final1", () => {
     expect(solve1(finalInput)).toStrictEqual(15140)
+  })
+
+  it("should solve final2", ()=>{
+    console.log(solve2(finalInput))
   })
 })
 
