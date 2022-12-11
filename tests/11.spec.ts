@@ -14,7 +14,7 @@ function deepCopy<T>(item: T): T {
   return JSON.parse(JSON.stringify(item))
 }
 
-function calculateMonkeyTurn(monkeys: Monkey[], monkeyIndex: number): Monkey[] {
+function calculateMonkeyTurn(monkeys: Monkey[], monkeyIndex: number, divisor: number): Monkey[] {
   const result = deepCopy(monkeys)
   const monkey = monkeys[monkeyIndex]
 
@@ -26,7 +26,7 @@ function calculateMonkeyTurn(monkeys: Monkey[], monkeyIndex: number): Monkey[] {
     } else {
       resultItem = monkey.by + item
     }
-    resultItem = Math.trunc(resultItem / 3)
+    resultItem = resultItem % divisor
     if ((resultItem % monkey.testDivide) === 0) {
       result[monkey.onTestSuccess].items = [...result[monkey.onTestSuccess].items, resultItem]
     } else {
@@ -41,13 +41,12 @@ function calculateMonkeyTurn(monkeys: Monkey[], monkeyIndex: number): Monkey[] {
   return result
 }
 
-function forwardRound(monkeys: Monkey[]): Monkey[] {
-  let result = deepCopy(monkeys)
+function forwardRound(monkeys: Monkey[], divisor: number): Monkey[] {
+  let result = [...monkeys]
 
   monkeys.forEach((_, monkeyIndex) => {
-    result = calculateMonkeyTurn(result, monkeyIndex)
+    result = calculateMonkeyTurn(result, monkeyIndex, divisor)
   })
-
 
   return result
 }
@@ -55,8 +54,10 @@ function forwardRound(monkeys: Monkey[]): Monkey[] {
 function solve1(monkeys: Monkey[]) {
   let result = [...monkeys]
 
-  for (let currentTour = 1; currentTour <= 20; currentTour++) {
-    result = forwardRound(result)
+  const divisor = monkeys.reduce((acc, curr) => acc * curr.testDivide, 1)
+
+  for (let currentTour = 1; currentTour <= 10000; currentTour++) {
+    result = forwardRound(result, divisor)
   }
 
   result.sort((a, b) => b.itemInspectCount - a.itemInspectCount)
@@ -65,7 +66,7 @@ function solve1(monkeys: Monkey[]) {
 }
 
 describe("11th day", () => {
-  it("should solve 1st test", () => {
+  it.skip("should solve 1st test", () => {
     expect(solve1(testInput)).toStrictEqual(10605)
   })
 
